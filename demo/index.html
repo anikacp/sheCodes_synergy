@@ -12,6 +12,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
     <style>
+      .iframe-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 4px;
+    }
         select,
         button,
         input[type="file"] {
@@ -58,6 +64,14 @@
 
       .ar {
         color: #f55d42;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      .ar1 {
+        color: black;
         align-items: center;
         justify-content: center;
         display: flex;
@@ -176,28 +190,27 @@ label {
         align-items: center;
         justify-content: center;
       }
-/* Style for the card container */
-.card-container {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    max-width: 100%; /* Adjust max-width as needed */
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+      .card-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        max-width: 100%; /* Adjust max-width as needed */
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
 
-.card {
-    width: 48%; /* Set the width for each card */
-    max-width: 100%;
-    border-radius: 8px;
-}
+    .card {
+        width: 30%; /* Set the width for each card */
+        max-width: 100%;
+        border-radius: 8px;
+    }
 
-.card img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-}
+    .card img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 8px;
+    }
   *, *:before, *:after {
     box-sizing: border-box;
   }
@@ -349,6 +362,10 @@ label {
   </head>
   <body>
     <h1 class="ar" style="font-size: 40px; font-weight: bold;">My AR CODE</h1>
+    <h1 class="ar1" style="font-size: 40px; font-weight: bold;margin-left:20px">Explore our collections </h1>
+    <div class="iframe-container">
+      <iframe src="https://www.spatial.io/embed/Anikas-Bespoke-Room-65da9ad788b11db1d77adb61?share=6390723488341664080" width="1280px" height="720px" allow="camera; fullscreen; autoplay; display-capture; microphone; clipboard-write"></iframe>
+  </div>
     <strong style="display: flex; align-items: center; justify-content: center; font-size: 24px;font-weight: bold">Scan from WebCam</strong>    
     </h1>
     <div class="head">
@@ -417,11 +434,15 @@ label {
       <div class="card-container">
         <div class="card">
             <img src="../assets/download (3).png" alt="Card Image" />
-        </div>
+          </div>
+          <div class="card">
+              <img src="../assets/boatHead.jpg" alt="Card Image" />
+          </div>
         <div class="card">
             <img src="../assets/pizzaHut.png" alt="Card Image" />
         </div>
     </div>
+    <h3>Have a look on this => <a href="http://"></a></h3>
       <footer class="footer">
         <div class="footer__addr">
           <h1 class="footer__logo">The AR CODE</h1>
