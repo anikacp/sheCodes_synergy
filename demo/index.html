@@ -1,219 +1,615 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>QR Scanner Demo</title>
-</head>
-<body>
-<h1>Scan from WebCam:</h1>
-<div id="video-container">
-    <video id="qr-video"></video>
-</div>
-<div>
-    <label>
+    <script src="https://cdn.botpress.cloud/webchat/v1/inject.js"></script>
+    <script
+      src="https://mediafiles.botpress.cloud/73206c34-3a62-4f65-b8de-06855ea02d3d/webchat/config.js"
+      defer
+    ></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        select,
+        button,
+        input[type="file"] {
+          padding: 10px 20px;
+          margin-bottom: 16px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px; /* Adjust the gap between buttons as needed */
+          }
+      button:hover {
+        background-color: #45a049;
+      }
+        #b{
+            display: inline;
+            justify-content: center;
+            align-items: center;
+        }
+      body {
+        font-family: "Roboto Slab", monospace;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+        color: #333;
+      }
+      #start-button,
+      #stop-button {
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      #start-button:hover {
+        background-color: #45a049;
+      }
+
+      .ar {
+        color: #f55d42;
+        align-items: center;
+        justify-content: center;
+        display: flex;
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin-top: 16px;
+      }
+
+      div {
+        margin-bottom: 16px;
+      }
+
+      #video-container {
+        line-height: 0;
+      }
+
+      #video-container.example-style-1 .scan-region-highlight-svg,
+      #video-container.example-style-1 .code-outline-highlight {
+        stroke: #64a2f3 !important;
+      }
+
+      #video-container.example-style-2 {
+        position: relative;
+        width: max-content;
+        height: max-content;
+        overflow: hidden;
+      }
+
+      #video-container.example-style-2 .scan-region-highlight {
+        border-radius: 30px;
+        outline: rgba(0, 0, 0, 0.25) solid 50vmax;
+      }
+
+      #video-container.example-style-2 .scan-region-highlight-svg {
+        display: none;
+      }
+
+      #video-container.example-style-2 .code-outline-highlight {
+        stroke: rgba(255, 255, 255, 0.5) !important;
+        stroke-width: 15 !important;
+        stroke-dasharray: none !important;
+      }
+
+      #flash-toggle {
+        display: none;
+      }
+
+      hr {
+        margin-top: 32px;
+      }
+      /* Style for the label */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333; /* Adjust the color to your preference */
+  }
+  #cam-list {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+
+  #cam-list:hover {
+    border-color: #555; 
+  }
+  
+
+  #inversion-mode-select {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+
+  #inversion-mode-select:hover {
+    border-color: #555; /* Adjust the color to your preference */
+  }
+  
+
+      input[type="file"] {
+        display: block;
+        margin-bottom: 16px;
+      }
+
+      button {
+        padding: 8px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      .centered-div {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+      }
+      #file-qr-result,
+      #cam-qr-result,
+      #cam-has-camera,
+      #cam-has-flash,
+      #flash-state,
+      #cam-qr-result-timestamp,
+      #file-qr-result {
+        font-size: 16px;
+      }
+      .head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+/* Style for the card container */
+.card-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 100%; /* Adjust max-width as needed */
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    width: 48%; /* Set the width for each card */
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+  *, *:before, *:after {
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-size: 100%;
+  }
+  
+  body {
+    font-family: acumin-pro, system-ui, sans-serif;
+    margin: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    font-size: 14px;
+    background-color: #f4f4f4;
+    align-items: start;
+    min-height: 100vh;
+  }
+  
+  .footer {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 30px 30px 20px 30px;
+    color: #2f2f2f;
+    background-color: #fff;
+    border-top: 1px solid #e5e5e5;
+  }
+  
+  .footer > * {
+    flex:  1 100%;
+  }
+  
+  .footer__addr {
+    margin-right: 1.25em;
+    margin-bottom: 2em;
+  }
+  
+  .footer__logo {
+    font-family: 'Pacifico', cursive;
+    font-weight: 400;
+    
+    font-size: 1.5rem;
+  }
+  
+  .footer__addr h2 {
+    margin-top: 1.3em;
+    font-size: 15px;
+    font-weight: 400;
+  }
+  
+  .nav__title {
+    font-weight: 400;
+    font-size: 15px;
+  }
+  
+  .footer address {
+    font-style: normal;
+    color: #999;
+  }
+  
+  .footer__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    max-width: max-content;
+    background-color: rgb(33, 33, 33, 0.07);
+    border-radius: 100px;
+    color: #2f2f2f;
+    line-height: 0;
+    margin: 0.6em 0;
+    font-size: 1rem;
+    padding: 0 1.3em;
+  }
+  
+  .footer ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .footer li {
+    line-height: 2em;
+  }
+  
+  .footer a {
+    text-decoration: none;
+  }
+  
+  .footer__nav {
+    display: flex;
+    flex-flow: row wrap;
+  }
+  
+  .footer__nav > * {
+    flex: 1 50%;
+    margin-right: 1.25em;
+  }
+  
+  .nav__ul a {
+    color: #999;
+  }
+  
+  .nav__ul--extra {
+    column-count: 2;
+    column-gap: 1.25em;
+  }
+  
+  .legal {
+    display: flex;
+    flex-wrap: wrap;
+    color: #999;
+  }
+    
+  .legal__links {
+    display: flex;
+    align-items: center;
+  }
+  
+  .heart {
+    color: #2f2f2f;
+  }
+  
+  @media screen and (min-width: 24.375em) {
+    .legal .legal__links {
+      margin-left: auto;
+    }
+  }
+  
+  @media screen and (min-width: 40.375em) {
+    .footer__nav > * {
+      flex: 1;
+    }
+    
+    .nav__item--extra {
+      flex-grow: 2;
+    }
+    
+    .footer__addr {
+      flex: 1 0px;
+    }
+    
+    .footer__nav {
+      flex: 2 0px;
+    }
+  }
+  
+  
+    </style>
+  </head>
+  <body>
+    <h1 class="ar" style="font-size: 40px; font-weight: bold;">My AR CODE</h1>
+    <strong style="display: flex; align-items: center; justify-content: center; font-size: 24px;font-weight: bold">Scan from WebCam</strong>    
+    </h1>
+    <div class="head">
+      <div id="video-container">
+        <video id="qr-video"></video>
+      </div>
+    </div>
+    <!-- <div id="b">
+      <label>
         Highlight Style
         <select id="scan-region-highlight-style-select">
-            <option value="default-style">Default style</option>
-            <option value="example-style-1">Example custom style 1</option>
-            <option value="example-style-2">Example custom style 2</option>
+          <option value="default-style">Default style</option>
+          <option value="example-style-1">Example custom style 1</option>
+          <option value="example-style-2">Example custom style 2</option>
         </select>
-    </label>
-    <label>
-        <input id="show-scan-region" type="checkbox">
+      </label>
+      <label>
+        <input id="show-scan-region" type="checkbox" />
         Show scan region canvas
-    </label>
-</div>
-<div>
-    <select id="inversion-mode-select">
-        <option value="original">Scan original (dark QR code on bright background)</option>
-        <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
-        <option value="both">Scan both</option>
-    </select>
-    <br>
-</div>
-<b>Device has camera: </b>
-<span id="cam-has-camera"></span>
-<br>
-<div>
-    <b>Preferred camera:</b>
-    <select id="cam-list">
-        <option value="environment" selected>Environment Facing (default)</option>
-        <option value="user">User Facing</option>
-    </select>
-</div>
-<b>Camera has flash: </b>
-<span id="cam-has-flash"></span>
-<div>
-    <button id="flash-toggle">📸 Flash: <span id="flash-state">off</span></button>
-</div>
-<br>
-<b>Detected QR code: </b>
-<span id="cam-qr-result">None</span>
-<br>
-<b>Last detected at: </b>
-<span id="cam-qr-result-timestamp"></span>
-<br>
-<button id="start-button">Start</button>
-<button id="stop-button">Stop</button>
-<hr>
+      </label>
+    </div> -->
+    <div class="centered-div">
+        <select id="inversion-mode-select">
+          <option value="original">Scan original (dark QR code on bright background)</option>
+          <option value="invert">Scan with inverted colors (bright QR code on dark background)</option>
+          <option value="both">Scan both</option>
+        </select>
+        <br />
+        <b>Device has camera: </b>
+        <span id="cam-has-camera"></span>
+      </div>
+      <div class="centered-div">
+        <b>Preferred camera:</b>
+        <select id="cam-list">
+          <option value="environment" selected>Environment Facing (default)</option>
+          <option value="user">User Facing</option>
+        </select>
+      </div>
+      <div class="centered-div">
+        <b>Camera has flash: </b>
+        <span id="cam-has-flash"></span>
+      </div>
+      <div class="centered-div">
+        <button id="flash-toggle">
+          📸 Flash: <span id="flash-state">off</span>
+        </button>
+    </div>
+      <div class="centered-div">
+      <b>Detected QR code: </b>
+      <span id="cam-qr-result">None</span>
+      <br />
+      <!-- <b>Last detected at: </b>
+      <span id="cam-qr-result-timestamp"></span>
+      <br />
+      <button id="start-button">Start</button>
+      <button id="stop-button">Stop</button>
+      <hr /> -->
+      <h1>Scan from File:</h1>
+      <input type="file" id="file-selector" />
+      <b>Detected QR code: </b>
+      <span id="file-qr-result">None</span>
+      <br />
+      <h3>Scan this QR to get a something interesting !!</h3>
+      <img src="../assets/unnamed.png" alt="">
+      <br>
+      <div class="card-container">
+        <div class="card">
+            <img src="../assets/download (3).png" alt="Card Image" />
+        </div>
+        <div class="card">
+            <img src="../assets/pizzaHut.png" alt="Card Image" />
+        </div>
+    </div>
+      <footer class="footer">
+        <div class="footer__addr">
+          <h1 class="footer__logo">The AR CODE</h1>
+        </div>
+        <div class="legal">
+          <p>&copy; 2024. All rights reserved.</p>
+          
+          <div class="legal__links">
+            <span>Made with <span class="heart">♥</span> by sheCodes</span>
+          </div>
+        </div>
+      </footer>
+  </div>
+      <script type="module">
+        import QrScanner from "../qr-scanner.min.js";
 
-<h1>Scan from File:</h1>
-<input type="file" id="file-selector">
-<b>Detected QR code: </b>
-<span id="file-qr-result">None</span>
+      const video = document.getElementById("qr-video");
+      const videoContainer = document.getElementById("video-container");
+      const camHasCamera = document.getElementById("cam-has-camera");
+      const camList = document.getElementById("cam-list");
+      const camHasFlash = document.getElementById("cam-has-flash");
+      const flashToggle = document.getElementById("flash-toggle");
+      const flashState = document.getElementById("flash-state");
+      const camQrResult = document.getElementById("cam-qr-result");
+      const camQrResultTimestamp = document.getElementById(
+        "cam-qr-result-timestamp"
+      );
+      const fileSelector = document.getElementById("file-selector");
+      const fileQrResult = document.getElementById("file-qr-result");
 
-<!--<script src="../qr-scanner.umd.min.js"></script>-->
-<!--<script src="../qr-scanner.legacy.min.js"></script>-->
-<script type="module">
-    import QrScanner from "../qr-scanner.min.js";
-
-    const video = document.getElementById('qr-video');
-    const videoContainer = document.getElementById('video-container');
-    const camHasCamera = document.getElementById('cam-has-camera');
-    const camList = document.getElementById('cam-list');
-    const camHasFlash = document.getElementById('cam-has-flash');
-    const flashToggle = document.getElementById('flash-toggle');
-    const flashState = document.getElementById('flash-state');
-    const camQrResult = document.getElementById('cam-qr-result');
-    const camQrResultTimestamp = document.getElementById('cam-qr-result-timestamp');
-    const fileSelector = document.getElementById('file-selector');
-    const fileQrResult = document.getElementById('file-qr-result');
-
-    function setResult(label, result) {
+      function setResult(label, result) {
         console.log(result.data);
         label.textContent = result.data;
         camQrResultTimestamp.textContent = new Date().toString();
-        label.style.color = 'teal';
+        label.style.color = "teal";
         clearTimeout(label.highlightTimeout);
-        label.highlightTimeout = setTimeout(() => label.style.color = 'inherit', 100);
-    }
+        label.highlightTimeout = setTimeout(
+          () => (label.style.color = "inherit"),
+          100
+        );
+      }
 
-    // ####### Web Cam Scanning #######
+      // ####### Web Cam Scanning #######
 
-    const scanner = new QrScanner(video, result => setResult(camQrResult, result), {
-        onDecodeError: error => {
+      const scanner = new QrScanner(
+        video,
+        (result) => setResult(camQrResult, result),
+        {
+          onDecodeError: (error) => {
             camQrResult.textContent = error;
-            camQrResult.style.color = 'inherit';
-        },
-        highlightScanRegion: true,
-        highlightCodeOutline: true,
-    });
+            camQrResult.style.color = "inherit";
+          },
+          highlightScanRegion: true,
+          highlightCodeOutline: true,
+        }
+      );
 
-    const updateFlashAvailability = () => {
-        scanner.hasFlash().then(hasFlash => {
-            camHasFlash.textContent = hasFlash;
-            flashToggle.style.display = hasFlash ? 'inline-block' : 'none';
+      const updateFlashAvailability = () => {
+        scanner.hasFlash().then((hasFlash) => {
+          camHasFlash.textContent = hasFlash;
+          flashToggle.style.display = hasFlash ? "inline-block" : "none";
         });
-    };
+      };
 
-    scanner.start().then(() => {
+      scanner.start().then(() => {
         updateFlashAvailability();
         // List cameras after the scanner started to avoid listCamera's stream and the scanner's stream being requested
         // at the same time which can result in listCamera's unconstrained stream also being offered to the scanner.
         // Note that we can also start the scanner after listCameras, we just have it this way around in the demo to
         // start the scanner earlier.
-        QrScanner.listCameras(true).then(cameras => cameras.forEach(camera => {
-            const option = document.createElement('option');
+        QrScanner.listCameras(true).then((cameras) =>
+          cameras.forEach((camera) => {
+            const option = document.createElement("option");
             option.value = camera.id;
             option.text = camera.label;
             camList.add(option);
-        }));
-    });
+          })
+        );
+      });
 
-    QrScanner.hasCamera().then(hasCamera => camHasCamera.textContent = hasCamera);
+      QrScanner.hasCamera().then(
+        (hasCamera) => (camHasCamera.textContent = hasCamera)
+      );
 
-    // for debugging
-    window.scanner = scanner;
+      // for debugging
+      window.scanner = scanner;
 
-    document.getElementById('scan-region-highlight-style-select').addEventListener('change', (e) => {
-        videoContainer.className = e.target.value;
-        scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
-    });
+      document
+        .getElementById("scan-region-highlight-style-select")
+        .addEventListener("change", (e) => {
+          videoContainer.className = e.target.value;
+          scanner._updateOverlay(); // reposition the highlight because style 2 sets position: relative
+        });
 
-    document.getElementById('show-scan-region').addEventListener('change', (e) => {
-        const input = e.target;
-        const label = input.parentNode;
-        label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
-        scanner.$canvas.style.display = input.checked ? 'block' : 'none';
-    });
+      document
+        .getElementById("show-scan-region")
+        .addEventListener("change", (e) => {
+          const input = e.target;
+          const label = input.parentNode;
+          label.parentNode.insertBefore(scanner.$canvas, label.nextSibling);
+          scanner.$canvas.style.display = input.checked ? "block" : "none";
+        });
 
-    document.getElementById('inversion-mode-select').addEventListener('change', event => {
-        scanner.setInversionMode(event.target.value);
-    });
+      document
+        .getElementById("inversion-mode-select")
+        .addEventListener("change", (event) => {
+          scanner.setInversionMode(event.target.value);
+        });
 
-    camList.addEventListener('change', event => {
+      camList.addEventListener("change", (event) => {
         scanner.setCamera(event.target.value).then(updateFlashAvailability);
-    });
+      });
 
-    flashToggle.addEventListener('click', () => {
-        scanner.toggleFlash().then(() => flashState.textContent = scanner.isFlashOn() ? 'on' : 'off');
-    });
+      flashToggle.addEventListener("click", () => {
+        scanner
+          .toggleFlash()
+          .then(
+            () => (flashState.textContent = scanner.isFlashOn() ? "on" : "off")
+          );
+      });
 
-    document.getElementById('start-button').addEventListener('click', () => {
+      document.getElementById("start-button").addEventListener("click", () => {
         scanner.start();
-    });
+      });
 
-    document.getElementById('stop-button').addEventListener('click', () => {
+      document.getElementById("stop-button").addEventListener("click", () => {
         scanner.stop();
-    });
+      });
 
-    // ####### File Scanning #######
+      // ####### File Scanning #######
 
-    fileSelector.addEventListener('change', event => {
+      fileSelector.addEventListener("change", (event) => {
         const file = fileSelector.files[0];
         if (!file) {
-            return;
+          return;
         }
         QrScanner.scanImage(file, { returnDetailedScanResult: true })
-            .then(result => setResult(fileQrResult, result))
-            .catch(e => setResult(fileQrResult, { data: e || 'No QR code found.' }));
-    });
-</script>
+          .then((result) => setResult(fileQrResult, result))
+          .catch((e) =>
+            setResult(fileQrResult, { data: e || "No QR code found." })
+          );
+      });
+    </script>
 
-<style>
-    div {
+    <style>
+      div {
         margin-bottom: 16px;
-    }
+      }
 
-    #video-container {
+      #video-container {
         line-height: 0;
-    }
+      }
 
-    #video-container.example-style-1 .scan-region-highlight-svg,
-    #video-container.example-style-1 .code-outline-highlight {
+      #video-container.example-style-1 .scan-region-highlight-svg,
+      #video-container.example-style-1 .code-outline-highlight {
         stroke: #64a2f3 !important;
-    }
+      }
 
-    #video-container.example-style-2 {
+      #video-container.example-style-2 {
         position: relative;
         width: max-content;
         height: max-content;
         overflow: hidden;
-    }
-    #video-container.example-style-2 .scan-region-highlight {
+      }
+      #video-container.example-style-2 .scan-region-highlight {
         border-radius: 30px;
-        outline: rgba(0, 0, 0, .25) solid 50vmax;
-    }
-    #video-container.example-style-2 .scan-region-highlight-svg {
+        outline: rgba(0, 0, 0, 0.25) solid 50vmax;
+      }
+      #video-container.example-style-2 .scan-region-highlight-svg {
         display: none;
-    }
-    #video-container.example-style-2 .code-outline-highlight {
-        stroke: rgba(255, 255, 255, .5) !important;
+      }
+      #video-container.example-style-2 .code-outline-highlight {
+        stroke: rgba(255, 255, 255, 0.5) !important;
         stroke-width: 15 !important;
         stroke-dasharray: none !important;
-    }
+      }
 
-    #flash-toggle {
+      #flash-toggle {
         display: none;
-    }
+      }
 
-    hr {
+      hr {
         margin-top: 32px;
-    }
-    input[type="file"] {
+      }
+      input[type="file"] {
         display: block;
         margin-bottom: 16px;
-    }
-</style>
-</body>
+      }
+    </style>
+  </body>
 </html>
